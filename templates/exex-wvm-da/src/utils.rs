@@ -1,5 +1,5 @@
-use brotlic::{CompressorWriter};
-use std::io::{Write};
+use brotlic::CompressorWriter;
+use std::io::Write;
 
 pub fn to_brotli(data: Vec<u8>) -> Vec<u8> {
     let buff: Vec<u8> = vec![];

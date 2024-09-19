@@ -1,10 +1,10 @@
 mod utils;
 
+use crate::utils::to_brotli;
 use async_trait::async_trait;
 use borsh::BorshSerialize;
-use eyre::{Error};
+use eyre::Error;
 use wvm_archiver::utils::transaction::send_wvm_calldata;
-use crate::utils::to_brotli;
 
 pub struct DefaultWvmDataSettler;
 
@@ -24,7 +24,9 @@ pub trait WvmDataSettler {
         &mut self,
         block_data: Vec<u8>,
     ) -> Result<String, WvmDataSettlerError> {
-        send_wvm_calldata(block_data).await.map_err(|_| WvmDataSettlerError::InvalidSendRequest)
+        send_wvm_calldata(block_data)
+            .await
+            .map_err(|_| WvmDataSettlerError::InvalidSendRequest)
     }
 }
 
@@ -34,11 +36,11 @@ impl WvmDataSettler for DefaultWvmDataSettler {}
 mod tests {
     use crate::{WvmDataSettler, WvmDataSettlerError};
     use async_trait::async_trait;
-    use reth::providers::Chain;
-    use reth_exex::{ExExNotification};
-    use reth_exex_test_utils::test_exex_context;
-    use std::sync::{Arc};
     use eyre::Report;
+    use reth::providers::Chain;
+    use reth_exex::ExExNotification;
+    use reth_exex_test_utils::test_exex_context;
+    use std::sync::Arc;
     use wevm_borsh::block::BorshSealedBlockWithSenders;
 
     #[tokio::test]
@@ -65,7 +67,9 @@ mod tests {
         context
             .1
             .notifications_tx
-            .send(ExExNotification::ChainCommitted { new: Arc::new(chain_def) })
+            .send(ExExNotification::ChainCommitted {
+                new: Arc::new(chain_def),
+            })
             .await
             .unwrap();
 
@@ -80,9 +84,11 @@ mod tests {
                 let sealed_block_with_senders = committed_chain.tip();
                 let borsh = BorshSealedBlockWithSenders(sealed_block_with_senders.clone());
                 let block_data = wvm_da.process_block(&borsh).unwrap();
-                wvm_da.send_wvm_calldata(block_data)
+                wvm_da
+                    .send_wvm_calldata(block_data)
                     .await
-                    .map_err(|e| Report::msg("Invalid Settle Request")).unwrap();
+                    .map_err(|e| Report::msg("Invalid Settle Request"))
+                    .unwrap();
             }
         }
 

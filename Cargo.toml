@@ -1,0 +1,25 @@
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.81"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/weaveVM/exex-templates"
+
+
+[workspace]
+members = [
+    "templates/exex-wvm-da"
+]
+
+[workspace.dependencies]
+async-trait = "0.1.82"
+eyre = "0.6"
+wevm-borsh = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+rbrotli = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+reth = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+reth-exex = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+reth-node-ethereum = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+wvm-archiver = { git = "https://github.com/weaveVM/wvm-archiver?a=true", branch = "main" }
+reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+tokio = { version = "1.39", default-features = false }
+borsh = "1.5.1"

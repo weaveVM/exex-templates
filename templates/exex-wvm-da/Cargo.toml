@@ -1,0 +1,40 @@
+[package]
+name = "exex-wvm-da"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+# Explicitly set the resolver to version 2, which is the default for packages with edition >= 2021
+# https://doc.rust-lang.org/edition-guide/rust-2021/default-cargo-resolver.html
+resolver = "2"
+
+[dependencies]
+async-trait.workspace = true
+eyre.workspace = true
+rbrotli.workspace = true
+reth.workspace = true
+reth-exex.workspace = true
+wevm-borsh.workspace = true
+wvm-archiver.workspace = true
+borsh.workspace = true
+
+[dev-dependencies]
+reth-exex-test-utils.workspace = true
+reth-node-ethereum.workspace = true
+tokio.workspace = true
+
+[profile.dind]
+inherits = "dev"
+
+[profile.no-debug-assertions]
+inherits = "dev"
+debug-assertions = false
+
+[profile.release]
+lto = true
+
+[env]
+RUST_BACKTRACE = "1"

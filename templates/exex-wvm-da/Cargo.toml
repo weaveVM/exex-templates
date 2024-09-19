@@ -3,28 +3,21 @@ name = "exex-wvm-da"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-
-# Explicitly set the resolver to version 2, which is the default for packages with edition >= 2021
-# https://doc.rust-lang.org/edition-guide/rust-2021/default-cargo-resolver.html
 resolver = "2"
 
 [dependencies]
 async-trait.workspace = true
 eyre.workspace = true
-rbrotli.workspace = true
-reth.workspace = true
-reth-exex.workspace = true
-wevm-borsh.workspace = true
 wvm-archiver.workspace = true
 borsh.workspace = true
+brotlic.workspace = true
 
 [dev-dependencies]
-reth-exex-test-utils.workspace = true
-reth-node-ethereum.workspace = true
+reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
 tokio.workspace = true
+reth = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+reth-exex = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+wevm-borsh = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
 
 [profile.dind]
 inherits = "dev"

@@ -1,10 +1,10 @@
+mod utils;
+
 use async_trait::async_trait;
-use eyre::{Error, Report};
-use rbrotli::to_brotli;
-use reth::{api::FullNodeComponents, primitives::SealedBlockWithSenders};
-use reth_exex::ExExContext;
-use wevm_borsh::block::BorshSealedBlockWithSenders;
+use borsh::BorshSerialize;
+use eyre::{Error};
 use wvm_archiver::utils::transaction::send_wvm_calldata;
+use crate::utils::to_brotli;
 
 pub struct DefaultWvmDataSettler;
 
@@ -14,9 +14,8 @@ pub enum WvmDataSettlerError {
 
 #[async_trait]
 pub trait WvmDataSettler {
-    fn process_block(&self, data: &SealedBlockWithSenders) -> Result<Vec<u8>, Error> {
-        let clone_block = BorshSealedBlockWithSenders(data.clone());
-        let borsh_data = borsh::to_vec(&clone_block)?;
+    fn process_block<T: BorshSerialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>, Error> {
+        let borsh_data = borsh::to_vec(&data)?;
         let brotli_borsh = to_brotli(borsh_data);
         Ok(brotli_borsh)
     }
@@ -27,23 +26,6 @@ pub trait WvmDataSettler {
     ) -> Result<String, WvmDataSettlerError> {
         send_wvm_calldata(block_data).await.map_err(|_| WvmDataSettlerError::InvalidSendRequest)
     }
-
-    async fn exex<Node: FullNodeComponents>(
-        &mut self,
-        mut ctx: ExExContext<Node>,
-    ) -> eyre::Result<()> {
-        while let Some(notification) = ctx.notifications.recv().await {
-            if let Some(committed_chain) = notification.committed_chain() {
-                let sealed_block_with_senders = committed_chain.tip();
-                let block_data = self.process_block(sealed_block_with_senders)?;
-                self.send_wvm_calldata(block_data)
-                    .await
-                    .map_err(|e| Report::msg("Invalid Settle Request"))?;
-            }
-        }
-
-        Ok(())
-    }
 }
 
 impl WvmDataSettler for DefaultWvmDataSettler {}
@@ -53,11 +35,11 @@ mod tests {
     use crate::{WvmDataSettler, WvmDataSettlerError};
     use async_trait::async_trait;
     use reth::providers::Chain;
-    use reth_exex::{ExExContext, ExExNotification};
+    use reth_exex::{ExExNotification};
     use reth_exex_test_utils::test_exex_context;
-    use reth_node_ethereum::EthereumNode;
-    use std::sync::{Arc, RwLock};
-    use tokio::sync::{mpsc, mpsc::unbounded_channel};
+    use std::sync::{Arc};
+    use eyre::Report;
+    use wevm_borsh::block::BorshSealedBlockWithSenders;
 
     #[tokio::test]
     pub async fn test_wvm_da() {
@@ -91,7 +73,18 @@ mod tests {
 
         drop(context.1);
 
-        wvm_da.exex(context.0).await.unwrap();
+        let mut ctx = context.0;
+
+        while let Some(notification) = ctx.notifications.recv().await {
+            if let Some(committed_chain) = notification.committed_chain() {
+                let sealed_block_with_senders = committed_chain.tip();
+                let borsh = BorshSealedBlockWithSenders(sealed_block_with_senders.clone());
+                let block_data = wvm_da.process_block(&borsh).unwrap();
+                wvm_da.send_wvm_calldata(block_data)
+                    .await
+                    .map_err(|e| Report::msg("Invalid Settle Request")).unwrap();
+            }
+        }
 
         assert!(wvm_da.called);
     }

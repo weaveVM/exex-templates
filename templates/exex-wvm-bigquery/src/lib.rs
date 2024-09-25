@@ -1,5 +1,5 @@
 pub mod types;
-mod repository;
+pub mod repository;
 
 use indexmap::IndexMap;
 use std::collections::HashMap;

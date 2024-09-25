@@ -1,0 +1,33 @@
+[package]
+name = "exex-wvm-bigquery"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+resolver = "2"
+
+[dependencies]
+gcp-bigquery-client = "0.20.0"
+indexmap = "2.0.0"
+serde_json.workspace = true
+serde.workspace = true
+phf = { version = "0.11.2", features = ["macros"] }
+polars = { version = "0.33.0", features = ["dtype-datetime", "lazy", "describe", "serde", "json", "temporal", "parquet"]}
+chrono = "0.4.31"
+once_cell = "1.18.0"
+eyre.workspace = true
+alloy-primitives = { version = "0.8.0", default-features = false }
+
+[dev-dependencies]
+
+[profile.dind]
+inherits = "dev"
+
+[profile.no-debug-assertions]
+inherits = "dev"
+debug-assertions = false
+
+[profile.release]
+lto = true
+
+[env]
+RUST_BACKTRACE = "1"

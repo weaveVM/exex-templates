@@ -8,7 +8,8 @@ repository = "https://github.com/weaveVM/exex-templates"
 
 [workspace]
 members = [
-    "templates/exex-wvm-da"
+    "templates/exex-wvm-da",
+    "templates/exex-wvm-bigquery"
 ]
 
 [workspace.dependencies]
@@ -18,3 +19,5 @@ eyre = "0.6"
 wvm-archiver = { git = "https://github.com/weaveVM/wvm-archiver", branch = "main" }
 tokio = { version = "1.39", default-features = false }
 borsh = "1.5.1"
+serde = "1.0.210"
+serde_json = "1.0.128"

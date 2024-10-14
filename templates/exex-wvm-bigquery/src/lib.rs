@@ -1,5 +1,5 @@
-pub mod types;
 pub mod repository;
+pub mod types;
 
 use indexmap::IndexMap;
 use std::collections::HashMap;
@@ -18,9 +18,11 @@ use polars::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{to_string, Value};
 
-use eyre::{Result, WrapErr};
 use crate::repository::StateRepository;
 use crate::types::ExecutionTipState;
+use eyre::{Result, WrapErr};
+use gcp_bigquery_client::model::query_request::QueryRequest;
+use gcp_bigquery_client::model::query_response::ResultSet;
 
 /// Query client
 /// Impl for this struct is further below
@@ -42,8 +44,10 @@ pub static COMMON_COLUMNS: phf::OrderedMap<&'static str, &'static str> = phf_ord
 
 pub fn prepare_blockstate_table_config() -> HashMap<String, IndexMap<String, String>> {
     let mut table_column_definition: HashMap<String, IndexMap<String, String>> = HashMap::new();
-    let merged_column_types: IndexMap<String, String> =
-        COMMON_COLUMNS.into_iter().map(|it| (it.0.to_string(), it.1.to_string())).collect();
+    let merged_column_types: IndexMap<String, String> = COMMON_COLUMNS
+        .into_iter()
+        .map(|it| (it.0.to_string(), it.1.to_string()))
+        .collect();
 
     table_column_definition.insert("state".to_string(), merged_column_types);
     table_column_definition
@@ -103,7 +107,7 @@ impl BigQueryClient {
         let client = gcp_bigquery_client::Client::from_service_account_key_file(
             bigquery_config.credentials_path.as_str(),
         )
-            .await;
+        .await;
 
         // let table_map = load_table_configs(indexer_contract_mappings);
 
@@ -188,18 +192,26 @@ impl BigQueryClient {
         table_name: &str,
         column_map: &IndexMap<String, String>,
     ) -> Result<(), BQError> {
-        let dataset_ref =
-            self.client.dataset().get(self.project_id.as_str(), self.dataset_id.as_str()).await;
+        let dataset_ref = self
+            .client
+            .dataset()
+            .get(self.project_id.as_str(), self.dataset_id.as_str())
+            .await;
         let table_ref = self
             .client
             .table()
-            .get(self.project_id.as_str(), self.dataset_id.as_str(), table_name, None)
+            .get(
+                self.project_id.as_str(),
+                self.dataset_id.as_str(),
+                table_name,
+                None,
+            )
             .await;
 
         match table_ref {
             Ok(..) => {
                 println!("Table {table_name} already exists, skip creation.");
-                return Ok(())
+                return Ok(());
             }
             Err(..) => {
                 // Table does not exist (err), create
@@ -263,7 +275,9 @@ impl BigQueryClient {
 
                 //  Convert from AnyValue (polars) to Value (generic value wrapper)
                 //  The converted-to type is already specified in the inbound configuration
-                let col_type = table_config.get(&name.to_string()).expect("Column should exist");
+                let col_type = table_config
+                    .get(&name.to_string())
+                    .expect("Column should exist");
                 let transformed_value = match col_type.as_str() {
                     "int" => BigQueryClient::bigquery_anyvalue_numeric_type(&value),
                     "string" => Value::String(value.to_string()),
@@ -352,6 +366,31 @@ impl BigQueryClient {
         }
     }
 
+    pub async fn bq_query_state(&self, block_id: String) -> Option<String> {
+        let query_request = QueryRequest::new(format!(
+            "SELECT sealed_block_with_senders FROM `{}.{}.{}` WHERE block_number = {}",
+            self.project_id, self.dataset_id, "state", block_id
+        ));
+
+        let mut q = self
+            .client
+            .job()
+            .query(&self.project_id, query_request)
+            .await;
+
+        match q {
+            Ok(mut rs) => {
+                let _ = rs.next_row();
+
+                rs.get_string_by_name("sealed_block_with_senders").ok()?
+            }
+            Err(e) => {
+                println!("{:?}", e);
+                None
+            }
+        }
+    }
+
     pub async fn bq_insert_state(
         &self,
         table_name: &str,
@@ -401,14 +440,23 @@ impl BigQueryClient {
     }
 }
 
-
-pub async fn save_block<T>(state_repository: &StateRepository, block: &T, block_number: u64, arweave_id: String) -> eyre::Result<()> where T: ?Sized + Serialize {
+pub async fn save_block<T>(
+    state_repository: &StateRepository,
+    block: &T,
+    block_number: u64,
+    arweave_id: String,
+) -> eyre::Result<()>
+where
+    T: ?Sized + Serialize,
+{
     let block_str = to_string(block).unwrap();
-    let _ = state_repository.save(ExecutionTipState {
-        block_number,
-        arweave_id,
-        sealed_block_with_senders_serialized: block_str,
-    }).await?;
+    let _ = state_repository
+        .save(ExecutionTipState {
+            block_number,
+            arweave_id,
+            sealed_block_with_senders_serialized: block_str,
+        })
+        .await?;
 
     Ok(())
 }

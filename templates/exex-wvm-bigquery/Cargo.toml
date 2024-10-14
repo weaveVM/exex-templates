@@ -15,9 +15,10 @@ polars = { version = "0.33.0", features = ["dtype-datetime", "lazy", "describe",
 chrono = "0.4.31"
 once_cell = "1.18.0"
 eyre.workspace = true
-alloy-primitives = { version = "0.8.0", default-features = false }
+alloy-primitives = { version = "0.8.4", default-features = false }
 
 [dev-dependencies]
+tokio.workspace = true
 
 [profile.dind]
 inherits = "dev"

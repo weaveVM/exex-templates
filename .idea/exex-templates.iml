@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/templates/exex-wvm-bigquery/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/templates/exex-wvm-da/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/templates/exex-avs-operator/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

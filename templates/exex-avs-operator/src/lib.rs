@@ -1,7 +1,7 @@
+use hex_literal::hex;
 use std::collections::HashMap;
 use std::future::Future;
 use std::str::FromStr;
-use hex_literal::hex;
 use web3::api::{Accounts, Eth, Namespace};
 use web3::contract::tokens::{Detokenize, Tokenize};
 use web3::contract::{Contract, Error, Options};
@@ -60,9 +60,8 @@ impl WvmAvsOperator {
     ) -> web3::contract::Result<R>
     where
         R: Detokenize,
-        P: Tokenize
+        P: Tokenize,
     {
-
         if let Some(contract) = self.contracts.get(&contract_alias) {
             contract
                 .query(
@@ -102,31 +101,58 @@ impl WvmAvsOperator {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::WvmAvsOperator;
 
     #[tokio::test]
     pub async fn test_query_contract() {
-        let mut operator = WvmAvsOperator::new("http://localhost:8545".to_string(), Some("9234bd23a4180e3a37a565150b058e20987dceb6ac63d98a571ec8197222242c".to_string()));
+        let mut operator = WvmAvsOperator::new(
+            "http://localhost:8545".to_string(),
+            Some("9234bd23a4180e3a37a565150b058e20987dceb6ac63d98a571ec8197222242c".to_string()),
+        );
         let json = r#"[{"inputs":[{"internalType":"string","name":"txIdOrGatewayAndTxId","type":"string"}],"name":"read_from_arweave","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"}]"#;
 
-        operator.init_contract("ar-reader".to_string(), "0x1c08473a8e024f0b08f15ec7a501c2b9bf104cea".to_string(), json.as_bytes());
-        let res = operator.query("ar-reader".to_string(), "read_from_arweave".to_string(), String::from("bs318IdjLWQK7pF_bNIbJnpade8feD7yGAS8xIffJDI"), None).await;
+        operator.init_contract(
+            "ar-reader".to_string(),
+            "0x1c08473a8e024f0b08f15ec7a501c2b9bf104cea".to_string(),
+            json.as_bytes(),
+        );
+        let res = operator
+            .query(
+                "ar-reader".to_string(),
+                "read_from_arweave".to_string(),
+                String::from("bs318IdjLWQK7pF_bNIbJnpade8feD7yGAS8xIffJDI"),
+                None,
+            )
+            .await;
         let a: Vec<u8> = res.unwrap();
         assert_eq!(a, b"Hello world".to_vec());
     }
 
     #[tokio::test]
     pub async fn test_write_to_contract() {
-        let mut operator = WvmAvsOperator::new("http://localhost:8545".to_string(), Some("9234bd23a4180e3a37a565150b058e20987dceb6ac63d98a571ec8197222242c".to_string()));
+        let mut operator = WvmAvsOperator::new(
+            "http://localhost:8545".to_string(),
+            Some("9234bd23a4180e3a37a565150b058e20987dceb6ac63d98a571ec8197222242c".to_string()),
+        );
         let json = r#"[{"inputs":[{"internalType":"string","name":"dataString","type":"string"}],"name":"upload_to_arweave","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"}]"#;
 
-        operator.init_contract("ar-writer".to_string(), "0x30ea9c09bc861e1ece4b1a90f06da9880ffbf07d".to_string(), json.as_bytes());
-        let res = operator.call("ar-writer".to_string(), "upload_to_arweave".to_string(), String::from(""), None, 1).await;
+        operator.init_contract(
+            "ar-writer".to_string(),
+            "0x30ea9c09bc861e1ece4b1a90f06da9880ffbf07d".to_string(),
+            json.as_bytes(),
+        );
+        let res = operator
+            .call(
+                "ar-writer".to_string(),
+                "upload_to_arweave".to_string(),
+                String::from(""),
+                None,
+                1,
+            )
+            .await;
         let a = res.unwrap();
         println!("{:?}", a);
     }
-
 }

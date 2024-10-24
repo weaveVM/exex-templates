@@ -13,5 +13,7 @@ This repository contains a collection of Execution Extensions (ExExes) developed
   
 - [exex-wvm-da](./templates/exex-wvm-da/): Provides an interface for WeaveVM longterm DA in any Reth client, with less than 80 lines of code.
 
+- [exex-avs-operator](./templates/exex-avs-operator/): Utility crate to implement your EigenLayer AVS' operator as an ExEx and communicate with the AVS Service Manager contract.
+
 ## License
 The ExExes in this repository are licensed under the [MIT License](./LICENSE).

@@ -15,13 +15,13 @@ pub enum WvmAvsResult<R> {
     Err(String),
 }
 
-struct WvmAvsOperator {
-    pk: String,
-    pks: SecretKey,
-    from: Address,
-    contracts: HashMap<String, Contract<Http>>,
-    transport: Http,
-    accounts: Accounts<Http>,
+pub struct WvmAvsOperator {
+    pub pk: String,
+    pub pks: SecretKey,
+    pub from: Address,
+    pub contracts: HashMap<String, Contract<Http>>,
+    pub transport: Http,
+    pub accounts: Accounts<Http>,
 }
 
 impl WvmAvsOperator {

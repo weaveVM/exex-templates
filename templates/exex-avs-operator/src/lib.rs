@@ -27,7 +27,7 @@ struct WvmAvsOperator {
 impl WvmAvsOperator {
     pub fn new(http_transport_url: String, pk: Option<String>) -> Self {
         let transport = Http::new(http_transport_url.as_str()).unwrap();
-        let pk = pk.unwrap_or_else(|| std::env::var("WEVM_AVS_OPERATOR_PK").unwrap());
+        let pk = pk.unwrap_or_else(|| std::env::var("WVM_AVS_OPERATOR_PK").unwrap());
         let key = SecretKey::from_slice(hex::decode(&pk).unwrap().as_slice()).unwrap();
         let from: Address = SecretKeyRef::new(&key).address();
 

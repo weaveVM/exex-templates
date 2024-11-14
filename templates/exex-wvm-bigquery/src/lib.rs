@@ -391,6 +391,37 @@ impl BigQueryClient {
         }
     }
 
+    pub async fn insert_generic(
+        &self,
+        table_name: &str,
+        insert_id: Option<String>,
+        data: impl Serialize,
+    ) -> eyre::Result<()> {
+        let mut insert_request = TableDataInsertAllRequest::new();
+        insert_request.add_row(insert_id, data)?;
+        let result = self
+            .client
+            .tabledata()
+            .insert_all(
+                self.project_id.as_str(),
+                self.dataset_id.as_str(),
+                table_name,
+                insert_request,
+            )
+            .await;
+
+        match result {
+            Ok(response) => {
+                println!("Success response: {:?}", response);
+                Ok(())
+            }
+            Err(error) => {
+                println!("Failed, reason: {:?}", error);
+                Err(eyre::Report::new(error)).wrap_err("Failed to insert data into BigQuery")
+            }
+        }
+    }
+
     pub async fn bq_insert_state(
         &self,
         table_name: &str,

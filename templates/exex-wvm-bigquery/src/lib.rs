@@ -472,7 +472,7 @@ impl BigQueryClient {
 }
 
 pub async fn save_block<T>(
-    state_repository: &StateRepository,
+    state_repository: Arc<StateRepository>,
     block: &T,
     block_number: u64,
     arweave_id: String,

@@ -27,9 +27,9 @@ use gcp_bigquery_client::model::query_response::ResultSet;
 /// Query client
 /// Impl for this struct is further below
 pub struct BigQueryClient {
-    client: Client,
-    project_id: String,
-    dataset_id: String,
+    pub client: Client,
+    pub project_id: String,
+    pub dataset_id: String,
     // drop_tables: bool,
     // table_map: HashMap<String, IndexMap<String, String>>,
 }
@@ -364,6 +364,13 @@ impl BigQueryClient {
             AnyValue::UInt64(val) => Value::Number((*val).into()),
             _ => Value::Null,
         }
+    }
+
+    pub async fn bq_query(&self, query: String) -> std::result::Result<ResultSet, BQError> {
+        let query_req = QueryRequest::new(query);
+        let mut q = self.client.job().query(&self.project_id, query_req).await;
+
+        q
     }
 
     pub async fn bq_query_state(&self, block_id: String) -> Option<String> {

@@ -311,9 +311,6 @@ impl BigQueryClient {
             let _ = insert_request.add_row(None, row_map.clone());
         }
 
-        println!("row cnt gcp: {:?}", vec_of_rowmaps.len());
-        println!("gcp insert request: {:?}", insert_request);
-
         let result = self
             .client
             .tabledata()

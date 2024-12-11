@@ -136,14 +136,14 @@ dependencies = [
 
 [[package]]
 name = "alloy-consensus"
-version = "0.4.2"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "705687d5bfd019fee57cf9e206b27b30a9a9617535d5590a02b171e813208f8e"
+checksum = "41ed961a48297c732a5d97ee321aa8bb5009ecadbcb077d8bec90cb54e651629"
 dependencies = [
- "alloy-eips 0.4.0",
+ "alloy-eips 0.5.4",
  "alloy-primitives",
  "alloy-rlp",
- "alloy-serde 0.4.2",
+ "alloy-serde 0.5.4",
  "auto_impl",
  "c-kzg",
  "derive_more 1.0.0",
@@ -196,13 +196,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "alloy-eip7702"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64ffc577390ce50234e02d841214b3dc0bea6aaaae8e04bbf3cb82e9a45da9eb"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
+ "derive_more 1.0.0",
+ "serde",
+]
+
+[[package]]
 name = "alloy-eips"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f923dd5fca5f67a43d81ed3ebad0880bd41f6dd0ada930030353ac356c54cd0f"
 dependencies = [
  "alloy-eip2930",
- "alloy-eip7702",
+ "alloy-eip7702 0.1.0",
  "alloy-primitives",
  "alloy-rlp",
  "alloy-serde 0.3.6",
@@ -216,15 +228,15 @@ dependencies = [
 
 [[package]]
 name = "alloy-eips"
-version = "0.4.0"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2717a756c33fe935751d8963b5898d406c8846199660c9d6c6eeb41a18a15697"
+checksum = "b69e06cf9c37be824b9d26d6d101114fdde6af0c87de2828b414c05c4b3daa71"
 dependencies = [
  "alloy-eip2930",
- "alloy-eip7702",
+ "alloy-eip7702 0.3.2",
  "alloy-primitives",
  "alloy-rlp",
- "alloy-serde 0.4.2",
+ "alloy-serde 0.5.4",
  "c-kzg",
  "derive_more 1.0.0",
  "once_cell",
@@ -304,14 +316,14 @@ dependencies = [
 
 [[package]]
 name = "alloy-network-primitives"
-version = "0.4.2"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "801492711d4392b2ccf5fc0bc69e299fa1aab15167d74dcaa9aab96a54f684bd"
+checksum = "514f70ee2a953db21631cd817b13a1571474ec77ddc03d47616d5e8203489fde"
 dependencies = [
- "alloy-consensus 0.4.2",
- "alloy-eips 0.4.0",
+ "alloy-consensus 0.5.4",
+ "alloy-eips 0.5.4",
  "alloy-primitives",
- "alloy-serde 0.4.2",
+ "alloy-serde 0.5.4",
  "serde",
 ]
 
@@ -456,7 +468,6 @@ checksum = "64333d639f2a0cf73491813c629a405744e16343a4bc5640931be707c345ecc5"
 dependencies = [
  "alloy-rpc-types-engine",
  "alloy-rpc-types-eth 0.3.6",
- "alloy-rpc-types-trace 0.3.6",
  "alloy-serde 0.3.6",
  "serde",
 ]
@@ -550,16 +561,16 @@ dependencies = [
 
 [[package]]
 name = "alloy-rpc-types-eth"
-version = "0.4.2"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "413f4aa3ccf2c3e4234a047c5fa4727916d7daf25a89f9b765df0ba09784fd87"
+checksum = "00b034779a4850b4b03f5be5ea674a1cf7d746b2da762b34d1860ab45e48ca27"
 dependencies = [
- "alloy-consensus 0.4.2",
- "alloy-eips 0.4.0",
- "alloy-network-primitives 0.4.2",
+ "alloy-consensus 0.5.4",
+ "alloy-eips 0.5.4",
+ "alloy-network-primitives 0.5.4",
  "alloy-primitives",
  "alloy-rlp",
- "alloy-serde 0.4.2",
+ "alloy-serde 0.5.4",
  "alloy-sol-types",
  "derive_more 1.0.0",
  "itertools 0.13.0",
@@ -596,13 +607,13 @@ dependencies = [
 
 [[package]]
 name = "alloy-rpc-types-trace"
-version = "0.4.2"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "017cad3e5793c5613588c1f9732bcbad77e820ba7d0feaba3527749f856fdbc5"
+checksum = "4e5fb6c5c401321f802f69dcdb95b932f30f8158f6798793f914baac5995628e"
 dependencies = [
  "alloy-primitives",
- "alloy-rpc-types-eth 0.4.2",
- "alloy-serde 0.4.2",
+ "alloy-rpc-types-eth 0.5.4",
+ "alloy-serde 0.5.4",
  "serde",
  "serde_json",
  "thiserror",
@@ -634,9 +645,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-serde"
-version = "0.4.2"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9dff0ab1cdd43ca001e324dc27ee0e8606bd2161d6623c63e0e0b8c4dfc13600"
+checksum = "028e72eaa9703e4882344983cfe7636ce06d8cce104a78ea62fd19b46659efc4"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -9216,13 +9227,12 @@ dependencies = [
 
 [[package]]
 name = "revm-inspectors"
-version = "0.8.1"
-source = "git+https://github.com/weaveVM/revm-inspectors?v?branch=main#44f6806a1a388f5818485b8430f97277eb8f5929"
+version = "0.10.0"
+source = "git+https://github.com/weaveVM/revm-inspectors?v?branch=main#9d121fb14ae45bafe61824eb68c25e805dd39bbe"
 dependencies = [
  "alloy-primitives",
- "alloy-rpc-types",
- "alloy-rpc-types-eth 0.4.2",
- "alloy-rpc-types-trace 0.4.2",
+ "alloy-rpc-types-eth 0.5.4",
+ "alloy-rpc-types-trace 0.5.4",
  "alloy-sol-types",
  "anstyle",
  "colorchoice",

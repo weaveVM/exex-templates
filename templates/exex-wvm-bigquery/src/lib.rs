@@ -449,8 +449,6 @@ impl BigQueryClient {
             },
         )?;
 
-        println!("gcp insert request: {:?}", insert_request);
-
         let result = self
             .client
             .tabledata()

@@ -442,6 +442,7 @@ impl BigQueryClient {
             block_number: u64,
             arweave_id: String,
             sealed_block_with_senders: String,
+            block_hash: String
         }
 
         let mut insert_request = TableDataInsertAllRequest::new();
@@ -452,6 +453,7 @@ impl BigQueryClient {
                 arweave_id: state.arweave_id,
                 block_number: state.block_number,
                 sealed_block_with_senders: state.sealed_block_with_senders_serialized,
+                block_hash: state.block_hash
             },
         )?;
 
@@ -484,6 +486,7 @@ pub async fn save_block<T>(
     block: &T,
     block_number: u64,
     arweave_id: String,
+    block_hash: String,
 ) -> eyre::Result<()>
 where
     T: ?Sized + Serialize,
@@ -494,6 +497,7 @@ where
             block_number,
             arweave_id,
             sealed_block_with_senders_serialized: block_str,
+            block_hash
         })
         .await?;
 

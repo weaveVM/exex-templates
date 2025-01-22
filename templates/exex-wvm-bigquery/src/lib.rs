@@ -370,7 +370,7 @@ impl BigQueryClient {
         q
     }
 
-    pub async fn bq_query_state(&self, block_id: String) -> Option<String> {
+    pub async fn bq_query_block(&self, block_id: String) -> Option<ResultSet> {
         let query_request = QueryRequest::new(format!(
             "SELECT sealed_block_with_senders FROM `{}.{}.{}` WHERE block_number = {}",
             self.project_id, self.dataset_id, "state", block_id
@@ -386,13 +386,19 @@ impl BigQueryClient {
             Ok(mut rs) => {
                 let _ = rs.next_row();
 
-                rs.get_string_by_name("sealed_block_with_senders").ok()?
+                Some(rs)
             }
             Err(e) => {
                 println!("{:?}", e);
                 None
             }
         }
+    }
+
+    pub async fn bq_query_state(&self, block_id: String) -> Option<String> {
+        self.bq_query_block(block_id)
+            .await
+            .map(|d| d.get_string_by_name("sealed_block_with_senders").ok()?)?
     }
 
     pub async fn insert_generic(

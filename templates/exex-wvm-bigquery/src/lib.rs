@@ -372,7 +372,7 @@ impl BigQueryClient {
 
     pub async fn bq_query_block(&self, block_id: String) -> Option<ResultSet> {
         let query_request = QueryRequest::new(format!(
-            "SELECT sealed_block_with_senders FROM `{}.{}.{}` WHERE block_number = {}",
+            "SELECT * FROM `{}.{}.{}` WHERE block_number = {}",
             self.project_id, self.dataset_id, "state", block_id
         ));
 

@@ -23,6 +23,9 @@ use crate::types::ExecutionTipState;
 use eyre::{Result, WrapErr};
 use gcp_bigquery_client::model::query_request::QueryRequest;
 use gcp_bigquery_client::model::query_response::ResultSet;
+use thiserror::Error;
+
+use gcp_bigquery_client::yup_oauth2::ServiceAccountKey;
 
 /// Query client
 /// Impl for this struct is further below
@@ -53,9 +56,35 @@ pub fn prepare_blockstate_table_config() -> HashMap<String, IndexMap<String, Str
     table_column_definition
 }
 
-#[derive(Debug)]
+// ---------------------------------------------------------------------------
+// Error Handling
+// ---------------------------------------------------------------------------
+#[derive(Debug, Error)]
 pub enum GcpClientError {
-    BigQueryError(BQError),
+    #[error("BigQuery error: {0}")]
+    BigQueryError(#[from] BQError),
+
+    #[error("Invalid credentials JSON: {0}")]
+    InvalidCredentialsJson(String),
+
+    #[error("Failed to initialize BigQuery client: {0}")]
+    ClientInitError(String),
+
+    #[error("Missing credentials in config: both credentials_path and credentials_json are empty")]
+    MissingCredentials,
+}
+
+// If you want a separate custom error type for init:
+#[derive(Debug, Error)]
+pub enum BigQueryError {
+    #[error("Invalid credentials JSON: {0}")]
+    InvalidCredentialsJson(String),
+
+    #[error("Client init error: {0}")]
+    ClientInitError(String),
+
+    #[error("No credentials provided (both credentials_path and credentials_json are empty)")]
+    MissingCredentials,
 }
 
 #[derive(Debug, Deserialize)]
@@ -75,52 +104,63 @@ pub struct BigQueryConfig {
     #[serde(rename = "credentialsPath")]
     // #[serde(skip_serializing_if = "Option::is_none")]
     pub credentials_path: String,
+
+    #[serde(rename = "credentialsJson")]
+    // #[serder(skip_serializing_if = "Option::is_none")]
+    pub credentials_json: String,
 }
 
 pub async fn init_bigquery_db(
     bigquery_config: &BigQueryConfig,
 ) -> Result<BigQueryClient, GcpClientError> {
-    let gcp_bigquery = BigQueryClient::new(bigquery_config).await?;
+    // Create the underlying GCP client
+    let client = BigQueryClient::new(bigquery_config)
+        .await
+        .map_err(|e| GcpClientError::ClientInitError(format!("{:?}", e)))?;
 
+    // (Optional) Drop existing tables if config says so
     // if bigquery_config.drop_tables {
-    //     let res = gcp_bigquery.delete_tables().await;
-    //     match res {
-    //         Ok(..) => {}
-    //         Err(err) => return Err(GcpClientError::BigQueryError(err)),
-    //     }
+    //     bq_client.delete_tables().await?;
     // }
 
-    let res = gcp_bigquery.create_state_table().await;
-    match res {
-        Ok(..) => {}
-        Err(err) => return Err(GcpClientError::BigQueryError(err)),
-    }
+    // For example, create the "state" table
+    client.create_state_table().await?;
 
-    Ok(gcp_bigquery)
+    Ok(client)
 }
 
 impl BigQueryClient {
-    pub async fn new(
-        bigquery_config: &BigQueryConfig,
-        // indexer_contract_mappings: &[IndexerContractMapping],
-    ) -> Result<Self, GcpClientError> {
-        let client = gcp_bigquery_client::Client::from_service_account_key_file(
-            bigquery_config.credentials_path.as_str(),
-        )
-        .await;
+    pub async fn new(cfg: &BigQueryConfig) -> Result<Self, BigQueryError> {
+        // 1. Check if we have inline JSON credentials
+        if !cfg.credentials_json.trim().is_empty() {
+            let key: ServiceAccountKey = serde_json::from_str(&cfg.credentials_json)
+                .map_err(|e| BigQueryError::InvalidCredentialsJson(e.to_string()))?;
 
-        // let table_map = load_table_configs(indexer_contract_mappings);
+            let client = Client::from_service_account_key(key, true)
+                .await
+                .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?;
 
-        match client {
-            Err(error) => Err(GcpClientError::BigQueryError(error)),
-            Ok(client) => Ok(BigQueryClient {
+            return Ok(BigQueryClient {
                 client,
-                // drop_tables: bigquery_config.drop_tables,
-                project_id: bigquery_config.project_id.to_string(),
-                dataset_id: bigquery_config.dataset_id.to_string(),
-                //  table_map,
-            }),
+                project_id: cfg.project_id.to_string(),
+                dataset_id: cfg.dataset_id.to_string(),
+            });
         }
+
+        // 2. Otherwise, fallback to file-based credentials
+        if !cfg.credentials_path.trim().is_empty() {
+            let client = Client::from_service_account_key_file(&cfg.credentials_path)
+                .await
+                .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?;
+
+            return Ok(BigQueryClient {
+                client,
+                project_id: cfg.project_id.to_string(),
+                dataset_id: cfg.dataset_id.to_string(),
+            });
+        };
+
+        Err(BigQueryError::MissingCredentials)
     }
 
     ///
@@ -442,7 +482,7 @@ impl BigQueryClient {
             block_number: u64,
             arweave_id: String,
             sealed_block_with_senders: String,
-            block_hash: String
+            block_hash: String,
         }
 
         let mut insert_request = TableDataInsertAllRequest::new();
@@ -453,7 +493,7 @@ impl BigQueryClient {
                 arweave_id: state.arweave_id,
                 block_number: state.block_number,
                 sealed_block_with_senders: state.sealed_block_with_senders_serialized,
-                block_hash: state.block_hash
+                block_hash: state.block_hash,
             },
         )?;
 
@@ -497,7 +537,7 @@ where
             block_number,
             arweave_id,
             sealed_block_with_senders_serialized: block_str,
-            block_hash
+            block_hash,
         })
         .await?;
 

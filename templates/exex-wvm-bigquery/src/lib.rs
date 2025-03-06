@@ -103,7 +103,7 @@ pub struct BigQueryConfig {
 
     #[serde(rename = "credentialsPath")]
     // #[serde(skip_serializing_if = "Option::is_none")]
-    pub credentials_path: String,
+    pub credentials_path: Option<String>,
 
     #[serde(rename = "credentialsJson")]
     // #[serder(skip_serializing_if = "Option::is_none")]
@@ -131,36 +131,28 @@ pub async fn init_bigquery_db(
 
 impl BigQueryClient {
     pub async fn new(cfg: &BigQueryConfig) -> Result<Self, BigQueryError> {
-        // 1. Check if we have inline JSON credentials
-        if !cfg.credentials_json.trim().is_empty() {
-            let key: ServiceAccountKey = serde_json::from_str(&cfg.credentials_json)
-                .map_err(|e| BigQueryError::InvalidCredentialsJson(e.to_string()))?;
+        let client = match (&cfg.credentials_json, &cfg.credentials_path) {
+            (Some(json), _) => {
+                let key: ServiceAccountKey = serde_json::from_value(json.clone())
+                    .map_err(|e| BigQueryError::InvalidCredentialsJson(e.to_string()))?;
 
-            let client = Client::from_service_account_key(key, true)
-                .await
-                .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?;
-
-            return Ok(BigQueryClient {
-                client,
-                project_id: cfg.project_id.to_string(),
-                dataset_id: cfg.dataset_id.to_string(),
-            });
-        }
-
-        // 2. Otherwise, fallback to file-based credentials
-        if !cfg.credentials_path.trim().is_empty() {
-            let client = Client::from_service_account_key_file(&cfg.credentials_path)
-                .await
-                .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?;
-
-            return Ok(BigQueryClient {
-                client,
-                project_id: cfg.project_id.to_string(),
-                dataset_id: cfg.dataset_id.to_string(),
-            });
+                Client::from_service_account_key(key, true)
+                    .await
+                    .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?
+            }
+            (None, Some(path)) => {
+                Client::from_service_account_key_file(path)
+                    .await
+                    .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?
+            }
+            (None, None) => return Err(BigQueryError::MissingCredentials),
         };
 
-        Err(BigQueryError::MissingCredentials)
+        Ok(BigQueryClient {
+            client,
+            project_id: cfg.project_id.clone(),
+            dataset_id: cfg.dataset_id.clone(),
+        })
     }
 
     ///

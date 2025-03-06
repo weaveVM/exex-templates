@@ -107,7 +107,7 @@ pub struct BigQueryConfig {
 
     #[serde(rename = "credentialsJson")]
     // #[serder(skip_serializing_if = "Option::is_none")]
-    pub credentials_json: String,
+    pub credentials_json: Option<serde_json::Value>, 
 }
 
 pub async fn init_bigquery_db(

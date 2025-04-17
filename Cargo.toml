@@ -8,7 +8,6 @@ repository = "https://github.com/weaveVM/exex-templates"
 
 [workspace]
 members = [
-    "templates/exex-wvm-da",
     "templates/exex-wvm-bigquery",
     "templates/exex-avs-operator"
 ]

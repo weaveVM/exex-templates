@@ -15,9 +15,9 @@ brotlic.workspace = true
 [dev-dependencies]
 reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
 tokio.workspace = true
-reth = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
-reth-exex = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
-wvm-borsh = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+reth.workspace = true
+reth-exex.workspace = true
+wvm-borsh.workspace = true
 
 [profile.dind]
 inherits = "dev"

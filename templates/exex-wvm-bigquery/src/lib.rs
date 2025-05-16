@@ -107,7 +107,7 @@ pub struct BigQueryConfig {
 
     #[serde(rename = "credentialsJson")]
     // #[serder(skip_serializing_if = "Option::is_none")]
-    pub credentials_json: Option<serde_json::Value>, 
+    pub credentials_json: Option<serde_json::Value>,
 }
 
 pub async fn init_bigquery_db(
@@ -140,11 +140,9 @@ impl BigQueryClient {
                     .await
                     .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?
             }
-            (None, Some(path)) => {
-                Client::from_service_account_key_file(path)
-                    .await
-                    .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?
-            }
+            (None, Some(path)) => Client::from_service_account_key_file(path)
+                .await
+                .map_err(|e| BigQueryError::ClientInitError(e.to_string()))?,
             (None, None) => return Err(BigQueryError::MissingCredentials),
         };
 

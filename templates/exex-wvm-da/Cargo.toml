@@ -13,7 +13,7 @@ borsh.workspace = true
 brotlic.workspace = true
 
 [dev-dependencies]
-reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "main"" }
+reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "main" }
 tokio.workspace = true
 reth = { git = "https://github.com/weaveVM/wvm-reth", branch = "main" }
 reth-exex = { git = "https://github.com/weaveVM/wvm-reth", branch = "main" }

@@ -24,3 +24,4 @@ serde_json = "1.0.128"
 reth = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
 reth-exex = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
 wvm-borsh = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }

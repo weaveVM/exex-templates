@@ -21,7 +21,7 @@ tokio = { version = "1.39", default-features = false }
 borsh = "1.5.1"
 serde = "1.0.210"
 serde_json = "1.0.128"
-reth = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
-reth-exex = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
-wvm-borsh = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
-reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "dev" }
+reth = { git = "https://github.com/weaveVM/wvm-reth", branch = "main" }
+reth-exex = { git = "https://github.com/weaveVM/wvm-reth", branch = "main" }
+wvm-borsh = { git = "https://github.com/weaveVM/wvm-reth", branch = "main" }
+reth-exex-test-utils = { git = "https://github.com/weaveVM/wvm-reth", branch = "main" }
